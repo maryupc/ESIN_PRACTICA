@@ -1,0 +1,8 @@
+struct node_hash {
+       phone _k;           // Clau
+       node_hash* _seg;
+       node_hash(const phone &k ,node_hash * seg = nullptr ) throw();
+};
+node_hash **_taula; // Taula amb punters a les llistes de phones
+nat _M;             // Mida de la taula
+nat _quants;        // Nº d’elements guardats al call_registry.

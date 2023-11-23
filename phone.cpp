@@ -1,11 +1,30 @@
 #include "phone.hpp"
 
-phone::phone(nat num=0, const string& name="", nat compt=0) throw(error) : _num(num), _name(name), _compt(compt)
-{    
+bool phone::itsCorrectName(const string &name)
+{
+    for (unsigned int i = 0; i < name.length(); ++i) {
+        if (name[i] == DELETECHAR or name[i] == ENDCHAR or name[i == ENDPREF])
+            return false;
+    }
+    return true;
 }
 
-phone::phone(const phone& T) throw(error) : _num(T._num), _name(T._name), _compt(T._compt)
+phone::phone(nat num, const string& name, nat compt) throw(error)
 {
+    if(itsCorrectName(name)) {
+        _num = num;
+        _name = name;
+        _compt = compt;
+    } else
+        throw error(ErrNomIncorrecte);
+}
+
+phone::phone(const phone& T) throw(error)
+{
+    if (itsCorrectName(T._name)) {
+        copyItems(T);
+    } else
+        throw error(ErrNomIncorrecte);
 }
 
 void phone::copyItems(const phone& T) throw()

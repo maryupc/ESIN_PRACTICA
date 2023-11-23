@@ -3,3 +3,5 @@ string _name;
 nat _compt;
 
 void copyItems(const phone& T) throw();
+
+static bool itsCorrectName(const string &name) throw();
