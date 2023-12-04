@@ -6,3 +6,18 @@ struct node_hash {
 node_hash **_taula; // Taula amb punters a les llistes de phones
 nat _M;             // Mida de la taula
 nat _quants;        // Nº d’elements guardats al call_registry.
+
+static long const MULT = 31415926;
+ 
+static long h(int k);
+// Pre: Cert
+// Post: Retorna un valor de dispersió entre 0 i LONG_MAX a partir de k
+
+float factor_de_carrega() const;
+// Pre: Cert
+// Post: Retorna el factor de càrrega de la taula de dispersió
+
+void redispersio();
+// Pre: Cert
+// Post: Redimensiona la taula de dispersió amb una mida el doble que 
+// l’anterior més un (_M passa a ser 2*_M+1)
