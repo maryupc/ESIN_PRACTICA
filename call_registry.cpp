@@ -49,7 +49,7 @@ void call_registry::elimina(nat num) throw(error)
 telèfon amb el número donat. */
 bool call_registry::conte(nat num) const throw()
 {
-
+    
 }
 
 /* Retorna el nom associat al número de telèfon que s'indica.

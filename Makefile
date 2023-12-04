@@ -1,10 +1,9 @@
-OPCIONS = -Wall -Wextra -Werror -Wno-sign-compare -std=c++11 -ansi
+OPCIONS = -Wall -Wextra -Wno-sign-compare -std=c++11 -ansi -g
 
 main.exe: main.o phone.o
 	g++ -o main.exe main.o phone.o -lesin
-	rm *.o
 
-main.o: main.cpp llista.hpp phone.rep
+main.o: main.cpp phone.hpp
 	g++ -c main.cpp $(OPCIONS)
 
 phone.o: phone.cpp phone.hpp phone.rep

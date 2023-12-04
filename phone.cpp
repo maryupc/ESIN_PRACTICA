@@ -3,7 +3,7 @@
 bool phone::itsCorrectName(const string &name) throw()
 {
     for (unsigned int i = 0; i < name.length(); ++i) {
-        if (name[i] == DELETECHAR or name[i] == ENDCHAR or name[i] == ENDPREF)
+        if (name[i] == DELETECHAR or name[i] == ENDCHAR or name[i] == '\\')
             return false;
     }
     return true;
