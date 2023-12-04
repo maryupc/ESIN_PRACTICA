@@ -1,5 +1,22 @@
 #include "call_registry.hpp"
 
+long int call_registry::h(int k) {
+    long i = ((k * k * MULT) << 20) >> 4;
+    if (i < 0)
+        i = -i;
+    return i;
+}
+
+float call_registry::factor_de_carrega() const
+{
+    return _quants/(float)_M;
+}
+
+void call_registry::redispersio()
+{
+    
+}
+
 call_registry::call_registry() throw(error)
 {
 
@@ -10,6 +27,7 @@ call_registry::call_registry(const call_registry& R) throw(error)
 {
 
 }
+
 typename call_registry::call_registry& call_registry::operator=(const call_registry& R) throw(error)
 {
 

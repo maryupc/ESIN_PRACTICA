@@ -19,8 +19,7 @@ namespace dialog {
   seqüència de tecles representada en input es produís un error
   llavors a answers es registra el missatge d'error associat a
   l'excepció, numtelf és un 0 i finalitza el procés. */
-  void dialog(easy_dial& easy, const string& input, 
-              vector<string>& answers, nat& numtelf) throw();
+  void dialog(easy_dial& easy, const string& input,vector<string>& answers, nat& numtelf) throw();
 
 };
 #endif

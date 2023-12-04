@@ -3,7 +3,7 @@
 bool phone::itsCorrectName(const string &name) throw()
 {
     for (unsigned int i = 0; i < name.length(); ++i) {
-        if (name[i] == DELETECHAR or name[i] == ENDCHAR or name[i] == '\\')
+        if (name[i] == DELETECHAR or name[i] == ENDCHAR or name[i] == ENDPREF)
             return false;
     }
     return true;
@@ -63,18 +63,20 @@ nat phone::frequencia() const throw()
 
 typename phone::phone& phone::operator++() throw()
 {
-    _compt++;
+    ++_compt;
     return *this;
 }
 
 typename phone::phone phone::operator++(int) throw()
 {
     _compt++;
-    return *this;
+    return phone(_num,_name,_compt-1);
 }
 
 bool phone::operator==(const phone& T) const throw()
 {
+    if(_compt == T._compt)
+        return _name < T._name;
     return _compt == T._compt;
 }
 
@@ -85,11 +87,15 @@ bool phone::operator!=(const phone& T) const throw()
 
 bool phone::operator<(const phone& T) const throw()
 {
+    if (_compt == T._compt)
+        return _name < T._name;
     return _compt < T._compt;
 }
 
 bool phone::operator>(const phone& T) const throw()
 {
+    if (_compt == T._compt)
+        return _name > T._name;
     return _compt > T._compt;
 }
 
