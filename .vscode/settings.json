@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "error": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "*.rep": "cpp"
     }
 }
