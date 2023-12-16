@@ -3,11 +3,6 @@
 /* ##IMPLEMENTACIÓ DELS MÈTODES PRIVATS## */
 //---------------------------------------------------------------------------------------------//
 
-void call_registry::insert_node(node_hash *p)
-{
-
-}
-
 call_registry::call_registry(nat m)
 {
     _M = m;
@@ -39,17 +34,22 @@ float call_registry::factor_de_carrega()
 // Redisperció de la taula
 void call_registry::redispersio()
 {
-    nat m = 2*_M + 1;
-    call_registry t2(m);
-    for(nat i = 0; i < _M; ++i) {
-        node_hash *p(_taula[i]);
+    nat nM = 2 * _M + 1;
+    node_hash **ntaula = new node_hash*[nM];
+    for (nat i = 0; i < nM; ++i) ntaula[i] = NULL;
+    for (nat i = 0; i < _M; ++i) {
+        node_hash *p = _taula[i];
         while (p != NULL) {
-            node_hash *n = new node_hash(p->_k);
-            t2.insert_node(n);
+            node_hash *q = p->_seg;
+            nat j = h(p->_k.numero()) % nM;
+            p->_seg = ntaula[j];
+            ntaula[j] = p;
+            p = q;
         }
     }
-    swap(_taula,t2._taula);
-    swap(_M,t2._M);
+    swap(_taula,ntaula);
+    swap(_M,nM);
+    delete[] ntaula;
 }
 
 // Eliminació de tots els nodes continguts a la taula
@@ -67,7 +67,7 @@ void call_registry::delete_nodes(node_hash *p)
 
 call_registry::call_registry() throw(error) :_quants(0)
 {
-    _M = 20;
+    _M = 10;
     _taula = new node_hash*[_M];
     for (nat i = 0; i < _M; ++i) {
         _taula[i] = NULL;
@@ -90,7 +90,7 @@ call_registry::~call_registry() throw()
     for (nat i = 0; i < _M; ++i) {
         delete_nodes(_taula[i]);
     }
-    delete[] _taula;
+    delete _taula;
 }
 
 /* Registra que s'ha realitzat una trucada al número donat, 
@@ -104,8 +104,10 @@ void call_registry::registra_trucada(nat num) throw(error)
     node_hash *p = _taula[i];
     node_hash *pant = NULL;
     while (p != NULL and not found and p->_k.numero() <= num) {
-        if(p->_k.numero() == num)
+        if(p->_k.numero() == num){
             found = true;
+            p->_k++;
+        }
         else {
             pant = p;
             p = p->_seg;
@@ -123,9 +125,6 @@ void call_registry::registra_trucada(nat num) throw(error)
         }
         _quants++;
     } 
-    else {
-        p->_k++;
-    }
     if (factor_de_carrega() > 0.8)
         redispersio();
 }
@@ -137,21 +136,81 @@ de trucades a 0.
 Si el número existia prèviament, se li assigna el nom donat. */
 void call_registry::assigna_nom(nat num, const string& name) throw(error)
 {
-
+    int i = h(num) % _M;
+    bool found = false;
+    node_hash *p = _taula[i];
+    node_hash *pant = NULL;
+    while (p != NULL and not found and p->_k.numero() <= num) {
+        if(p->_k.numero() == num){
+            found = true;
+            phone aux(num,name,p->_k.frequencia());
+            p->_k = aux;
+        }
+        else {
+            pant = p;
+            p = p->_seg;
+        }
+    }
+    if(not found){
+        phone aux(num,name,0);
+        node_hash *n = new node_hash(aux);
+        if (pant == NULL) {
+            n->_seg = _taula[i];
+            _taula[i] = n;
+        } else {
+            pant->_seg = n;
+            n->_seg = p;
+        }
+        _quants++;
+    } 
 }
 
 /* Elimina l'entrada corresponent al telèfon el número de la qual es dóna.
 Es produeix un error si el número no estava present. */
 void call_registry::elimina(nat num) throw(error)
-{
-
+{    
+    int i = h(num) % _M;
+    bool found = false;
+    node_hash *p = _taula[i];
+    node_hash *pant = NULL;
+    while (p != NULL and not found and p->_k.numero() <= num) {
+        if(p->_k.numero() == num){
+            found = true;
+        }
+        else {
+            pant = p;
+            p = p->_seg;
+        }
+    }
+    if(not found){
+        throw error(ErrNumeroInexistent);
+    }else{
+        if(pant == NULL){
+            _taula[i] = p->_seg;
+        }else{
+            pant->_seg = p->_seg;
+        }
+        delete(p);
+        --_quants;
+    }
 }
 
 /* Retorna cert si i només si el call_registry conté un 
 telèfon amb el número donat. */
 bool call_registry::conte(nat num) const throw()
 {
-    
+    int i = h(num) % _M;
+    bool found = false;
+    node_hash *p = _taula[i];
+    while (p != NULL and not found and p->_k.numero() <= num) {
+        if(p->_k.numero() == num){
+            found = true;
+        }
+        else {
+            p = p->_seg;
+        }
+    }
+    return found;
 }
 
 /* Retorna el nom associat al número de telèfon que s'indica.
@@ -160,7 +219,23 @@ té un nom associat. Es produeix un error si el número no està en
 el call_registry. */
 string call_registry::nom(nat num) const throw(error)
 {
-
+    int i = h(num) % _M;
+    bool found = false;
+    node_hash *p = _taula[i];
+    string name = "";
+    while (p != NULL and not found and p->_k.numero() <= num) {
+        if(p->_k.numero() == num){
+            found = true;
+            name = p->_k.nom();
+        }
+        else {
+            p = p->_seg;
+        }
+    }
+    if(not found){
+        throw error(ErrNumeroInexistent);
+    }
+    return name;
 }
 
 /* Retorna el comptador de trucades associat al número de telèfon 
@@ -169,7 +244,23 @@ aquest número. Es produeix un error si el número no està en el
 call_registry. */
 nat call_registry::num_trucades(nat num) const throw(error)
 {
-
+    int i = h(num) % _M;
+    bool found = false;
+    node_hash *p = _taula[i];
+    nat trucades_n = 0;
+    while (p != NULL and not found and p->_k.numero() <= num) {
+        if(p->_k.numero() == num){
+            found = true;
+            trucades_n = p->_k.frequencia();
+        }
+        else {
+            p = p->_seg;
+        }
+    }
+    if(not found){
+        throw error(ErrNumeroInexistent);
+    }
+    return trucades_n;
 }
 
 /* Retorna cert si i només si el call_registry està buit. */
@@ -190,5 +281,11 @@ Comprova que tots els noms dels telèfons siguin diferents;
 es produeix un error en cas contrari. */
 void call_registry::dump(vector<phone>& V) const throw(error)
 {
-
+    for(nat i = 0; i < _M; ++i){
+        node_hash *p(_taula[i]);
+        while(p != NULL) {
+            V.push_back(p->_k);
+            p = p->_seg;
+        }
+    }
 }

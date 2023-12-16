@@ -24,8 +24,6 @@ void redispersio();
 
 void delete_nodes(node_hash *p);
 
-void insert_node(node_hash *p);
-
 call_registry(nat m);
 // Pre: m > 0
 // Post: Crea un diccionari buit en una tuala de dispersió de mida m.
