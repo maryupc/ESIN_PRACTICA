@@ -1,14 +1,15 @@
-struct node_hash {
-       phone _k;           // Clau
-       node_hash* _seg;
-       node_hash(const phone &k,node_hash *seg = NULL) throw();
+struct node_hash
+{
+       phone _k; // Clau
+       node_hash *_seg;
+       node_hash(const phone &k = phone(), node_hash *seg = NULL) throw();
 };
 node_hash **_taula; // Taula amb punters a les llistes de phones
 nat _M;             // Mida de la taula
 nat _quants;        // Nº d’elements guardats al call_registry.
 
 static long const MULT = 31415926;
- 
+
 static long h(nat k);
 // Pre: Cert
 // Post: Retorna un valor de dispersió entre 0 i LONG_MAX a partir de k
@@ -19,11 +20,17 @@ float factor_de_carrega();
 
 void redispersio();
 // Pre: Cert
-// Post: Redimensiona la taula de dispersió amb una mida el doble que 
+// Post: Redimensiona la taula de dispersió amb una mida el doble que
 // l’anterior més un (_M passa a ser 2*_M+1)
 
-void delete_nodes(node_hash *p);
+static void delete_nodes(node_hash *p);
+static node_hash* copy_nodes(node_hash *p);
+
+void merge_sort(vector<phone> &v, int p, int r,bool &repetidos) const;
+void merge(vector<phone> &v, int p, int r, int q, bool &repetidos)const;
 
 call_registry(nat m);
 // Pre: m > 0
 // Post: Crea un diccionari buit en una tuala de dispersió de mida m.
+
+void print() const;

@@ -60,6 +60,86 @@ void call_registry::delete_nodes(node_hash *p)
     delete_nodes(p->_seg);
     delete p;
 }
+
+void call_registry::merge_sort(vector<phone>&v,int p,int r,bool &repetidos)const{
+    if(p<r){
+        int q = (p+r)/2;
+        merge_sort(v,p,q,repetidos);
+        merge_sort(v,q+1,r,repetidos);
+        merge(v,p,q,r,repetidos);
+    }
+}
+void call_registry::merge(vector<phone>& v, int p, int q, int r,bool &repetidos)const{
+    int size1 = q-p+1;
+    int size2 = r-q;
+    vector<phone> L(size1);
+    vector<phone> R(size2);
+
+    for(int i = 0; i < size1; i++)
+    {
+        L[i] = v[p+i];
+    }
+    for(int j = 0; j < size2; j++)
+    {
+        R[j]=v[q+j+1];
+    }
+
+    int i=0,j=0;
+    int k;
+
+        for(k = p; k <= r && i < size1 && j < size2; k++)
+        {
+            if(L[i].nom() < R[j].nom())
+            {
+                v[k] = L[i];
+                i++;
+            }
+            else if(L[i].nom() > R[j].nom())
+            {
+                v[k] = R[j];
+                j++;
+            }else {
+                repetidos = true;
+            }
+        }
+        while(i < size1 && not repetidos){
+            if(k >= 1 && v[k-1].nom() == L[i].nom()){
+                repetidos = true;
+            }else{
+                v[k] = L[i];
+                k++;
+                i++;
+            } 
+        }
+        while(j < size2 && not repetidos){
+            if(k>=1 && v[k-1].nom() == R[j].nom()){
+                repetidos = true;
+            }else{
+                v[k] = R[j];
+                k++;
+                j++;
+            }
+
+        }
+}
+
+typename call_registry::node_hash* call_registry::copy_nodes(node_hash *p)
+{
+    node_hash *n;
+    if (p == NULL) n = NULL;
+    else {
+        n = new node_hash();
+        try {
+            n->_k = p->_k;
+            n->_seg = copy_nodes(p->_seg);
+        } catch (...){
+            delete n;
+            throw;
+        }
+    }
+    return n;
+}
+
 //--------------------------------------------------------------------------------------------//
 
 
@@ -77,12 +157,31 @@ call_registry::call_registry() throw(error) :_quants(0)
 /* Constructor per còpia, operador d'assignació i destructor. */
 call_registry::call_registry(const call_registry& R) throw(error)
 {
-
+    _M = R._M;
+    _quants = R._quants;
+    _taula = new node_hash*[_M];
+    for (nat i = 0; i < _M; ++i) {
+        _taula[i] = copy_nodes(R._taula[i]);
+    }
+    
 }
 
 typename call_registry::call_registry& call_registry::operator=(const call_registry& R) throw(error)
 {
-
+    if (this != &R) {
+        for (nat i = 0; i < _M; ++i) {
+            delete_nodes(_taula[i]);
+        }
+        node_hash **aux(_taula);
+        _M = R._M;
+        _quants = R._quants;
+        _taula = new node_hash*[_M];
+        delete[] aux;
+        for (nat i = 0; i < _M; ++i) {
+            _taula[i] = copy_nodes(R._taula[i]);
+        }
+    }
+    return (*this);
 }
 
 call_registry::~call_registry() throw()
@@ -209,6 +308,7 @@ bool call_registry::conte(nat num) const throw()
         else {
             p = p->_seg;
         }
+        
     }
     return found;
 }
@@ -284,8 +384,80 @@ void call_registry::dump(vector<phone>& V) const throw(error)
     for(nat i = 0; i < _M; ++i){
         node_hash *p(_taula[i]);
         while(p != NULL) {
-            V.push_back(p->_k);
+            if(p->_k.nom() != "")
+                V.push_back(p->_k);
             p = p->_seg;
         }
     }
+    bool repetidos = false;
+    merge_sort(V,0,V.size()-1,repetidos);
+    if(repetidos){
+        throw error(ErrNomRepetit);
+    }
+}
+
+
+/*
+void merge(vector<int>& V, int l, int m, int r) {
+    int i, j, k;
+    int n1 = m - l + 1;
+    int n2 = r - m;
+
+    vector<int> L(n1), R(n2);
+
+    for (i = 0; i < n1; i++)
+        L[i] = V[l + i];
+    for (j = 0; j < n2; j++)
+        R[j] = V[m + 1 + j];
+
+    i = 0;  j = 0;  k = l;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            V[k] = L[i];
+            i++;
+        }
+        else {
+            V[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < n1) {
+        V[k] = L[i];
+        i++;
+        k++;
+    }
+
+    while (j < n2) {
+        V[k] = R[j];
+        j++;
+        k++;
+    }
+}
+
+void mergeSort(vector<int>& V, int l, int r) {
+    if (l < r) {
+        int m = l + (r - l) / 2;
+        mergeSort(V, l, m);
+        mergeSort(V, m + 1, r);
+        merge(V, l, m, r);
+    }
+}
+*/
+void call_registry::prin() const {
+    print();
+}
+
+void call_registry::print() const {
+  for (nat i=0; i < _M; ++i) {
+    cout << i << ": ";
+    node_hash *p = _taula[i];
+    while (p != NULL) {
+      cout << p->_k.numero() << " ";
+      p = p->_seg;
+    }
+    cout << endl;
+  }
+  cout << "-----------\n";
 }

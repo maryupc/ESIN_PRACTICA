@@ -11,8 +11,6 @@ int main()
     call_registry c1;
     for(nat i = 0; i < n; ++i)
         c1.registra_trucada(i+1);
-    vector<phone> vec;
-    c1.dump(vec);
-    for (nat i = 0; i < n; ++i)
-        cout << vec[i].numero() << endl;
+    c1.prin();
+    for(nat i = n +1; i < 2)
 }
