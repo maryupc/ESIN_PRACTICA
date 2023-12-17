@@ -23,7 +23,10 @@ void redispersio();
 // Post: Redimensiona la taula de dispersió amb una mida el doble que
 // l’anterior més un (_M passa a ser 2*_M+1)
 
+void insert(node_hash *p);
+
 static void delete_nodes(node_hash *p);
+
 static node_hash* copy_nodes(node_hash *p);
 
 void merge_sort(vector<phone> &v, int p, int r,bool &repetidos) const;

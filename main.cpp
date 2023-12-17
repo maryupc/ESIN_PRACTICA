@@ -12,5 +12,8 @@ int main()
     for(nat i = 0; i < n; ++i)
         c1.registra_trucada(i+1);
     c1.prin();
-    for(nat i = n +1; i < 2)
+    for(nat i = n +1; i < 2*n; ++i) {
+        c1.registra_trucada(i+1);
+    }
+    c1.prin();
 }

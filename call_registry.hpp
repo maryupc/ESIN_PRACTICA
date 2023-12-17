@@ -60,7 +60,7 @@ public:
   /* Retorna quants números de telèfon hi ha en el call_registry. */
   nat num_entrades() const throw();
 
-  void prin() const throw();
+  void prin() const;
 
   /* Fa un bolcat de totes les entrades que tenen associat un
   nom no nul sobre un vector de phone.

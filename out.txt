@@ -2093,13 +2093,13 @@ true
 true
 ##true
 #c 105
-false
+true
 ##true
 #c 106
-false
+true
 ##true
 #c 107
-false
+true
 ##true
 #c 108
 true
@@ -2207,13 +2207,13 @@ Error::call_registry:21:Numero inexistent.
 
 ##
 #nom_cr 105
-Error::call_registry:21:Numero inexistent.
+
 ##
 #nom_cr 106
-Error::call_registry:21:Numero inexistent.
+
 ##
 #nom_cr 107
-Error::call_registry:21:Numero inexistent.
+
 ##
 #nom_cr 108
 
@@ -2321,13 +2321,13 @@ Error::call_registry:21:Numero inexistent.
 1
 ##1
 #num_trucades 105
-Error::call_registry:21:Numero inexistent.
+1
 ##1
 #num_trucades 106
-Error::call_registry:21:Numero inexistent.
+1
 ##1
 #num_trucades 107
-Error::call_registry:21:Numero inexistent.
+1
 ##1
 #num_trucades 108
 1

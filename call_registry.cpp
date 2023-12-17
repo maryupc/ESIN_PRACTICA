@@ -31,24 +31,42 @@ float call_registry::factor_de_carrega()
     return _quants/(float)_M;
 }
 
+void call_registry::insert(node_hash *q)
+{
+    node_hash *n = new node_hash(q->_k);
+    int i = h(n->_k.numero()) % _M;
+    node_hash *p = _taula[i];
+    node_hash *pant = NULL;
+    while (p != NULL and p->_k.numero() <= n->_k.numero()) {
+        pant = p;
+        p = p->_seg;
+    }
+    if (pant == NULL) {
+        n->_seg = _taula[i];
+        _taula[i] = n;
+    } else {
+        pant->_seg = n;
+        n->_seg = p;
+    }
+    delete q;
+}
+
 // Redisperció de la taula
 void call_registry::redispersio()
 {
     nat nM = 2 * _M + 1;
     node_hash **ntaula = new node_hash*[nM];
     for (nat i = 0; i < nM; ++i) ntaula[i] = NULL;
-    for (nat i = 0; i < _M; ++i) {
-        node_hash *p = _taula[i];
-        while (p != NULL) {
-            node_hash *q = p->_seg;
-            nat j = h(p->_k.numero()) % nM;
-            p->_seg = ntaula[j];
-            ntaula[j] = p;
-            p = q;
-        }
-    }
     swap(_taula,ntaula);
     swap(_M,nM);
+    for (nat i = 0; i < nM; ++i) {
+        node_hash *m = ntaula[i];
+        while (m != NULL) {
+            node_hash *seg = m->_seg;
+            insert(m);
+            m = seg;
+        }
+    }
     delete[] ntaula;
 }
 
