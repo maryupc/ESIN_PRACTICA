@@ -32,8 +32,4 @@ static node_hash* copy_nodes(node_hash *p);
 void merge_sort(vector<phone> &v, int p, int r,bool &repetidos) const;
 void merge(vector<phone> &v, int p, int r, int q, bool &repetidos)const;
 
-call_registry(nat m);
-// Pre: m > 0
-// Post: Crea un diccionari buit en una tuala de dispersió de mida m.
-
 void print() const;
