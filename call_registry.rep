@@ -24,12 +24,19 @@ void redispersio();
 // l’anterior més un (_M passa a ser 2*_M+1)
 
 void insert(node_hash *p);
+// Pre : Cert
+// Post : Inserta a la taula de dispersió un node q = p de forma ordenada segons _k.numero().
+// i elimina en node p. 
 
 static void delete_nodes(node_hash *p);
+// Pre : Cert
+// Post : elimina tots els nodes seguents de p amb p inclós.
 
 static node_hash* copy_nodes(node_hash *p);
+// Pre : Cert
+// Post : Retorna un node copia del node p y tots els seus seguents.
 
 void merge_sort(vector<phone> &v, int p, int r,bool &repetidos) const;
-void merge(vector<phone> &v, int p, int r, int q, bool &repetidos)const;
+void merge(vector<phone> &v, int p, int r, int q, bool &repetidos) const;
 
-void print() const;
+/* void print() const; */

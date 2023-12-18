@@ -9,7 +9,8 @@ call_registry::node_hash::node_hash(const phone &k, node_hash *seg) throw() : _k
 }
 
 // Calculo de la posicion en la tabla de dispersión
-long int call_registry::h(nat k) {
+long int call_registry::h(nat k) 
+{
     long i = ((k * k * MULT) << 20) >> 4;
     if (i < 0)
         i = -i;
@@ -24,6 +25,8 @@ float call_registry::factor_de_carrega()
 
 void call_registry::insert(node_hash *q)
 {
+    if (q == NULL)
+        return;
     node_hash *n = new node_hash(q->_k);
     int i = h(n->_k.numero()) % _M;
     node_hash *p = _taula[i];
@@ -70,48 +73,45 @@ void call_registry::delete_nodes(node_hash *p)
     delete p;
 }
 
-void call_registry::merge_sort(vector<phone>&v,int p,int r,bool &repetidos)const{
+void call_registry::merge_sort(vector<phone>&v,int p,int r,bool &repetidos) const
+{
     if(p<r){
         int q = (p+r)/2;
         merge_sort(v,p,q,repetidos);
         merge_sort(v,q+1,r,repetidos);
-        merge(v,p,q,r,repetidos);
+        if(not repetidos) merge(v,p,q,r,repetidos);
     }
 }
-void call_registry::merge(vector<phone>& v, int p, int q, int r,bool &repetidos)const{
+
+void call_registry::merge(vector<phone>& v, int p, int q, int r,bool &repetidos) const
+{
     int size1 = q-p+1;
     int size2 = r-q;
     vector<phone> L(size1);
     vector<phone> R(size2);
 
-    for(int i = 0; i < size1; i++)
-    {
+    for(int i = 0; i < size1; i++){
         L[i] = v[p+i];
     }
-    for(int j = 0; j < size2; j++)
-    {
+    for(int j = 0; j < size2; j++){
         R[j]=v[q+j+1];
     }
 
     int i=0,j=0;
     int k;
 
-        for(k = p; k <= r && i < size1 && j < size2; k++)
-        {
-            if(L[i].nom() < R[j].nom())
-            {
+        for(k = p; k <= r && i < size1 && j < size2; k++){
+            if(L[i].nom() < R[j].nom()){
                 v[k] = L[i];
                 i++;
-            }
-            else if(L[i].nom() > R[j].nom())
-            {
+            }else if(L[i].nom() > R[j].nom()){
                 v[k] = R[j];
                 j++;
             }else {
                 repetidos = true;
             }
         }
-        while(i < size1 && not repetidos){
+        while(i < size1 and not repetidos){
             if(k >= 1 && v[k-1].nom() == L[i].nom()){
                 repetidos = true;
             }else{
@@ -120,7 +120,7 @@ void call_registry::merge(vector<phone>& v, int p, int q, int r,bool &repetidos)
                 i++;
             } 
         }
-        while(j < size2 && not repetidos){
+        while(j < size2 and not repetidos){
             if(k>=1 && v[k-1].nom() == R[j].nom()){
                 repetidos = true;
             }else{
@@ -154,9 +154,8 @@ typename call_registry::node_hash* call_registry::copy_nodes(node_hash *p)
 
 /* ##IMPLEMENTACIÓ DELS MÉTODES PÚBLICS## */
 
-call_registry::call_registry() throw(error) :_quants(0)
+call_registry::call_registry() throw(error) : _M(100), _quants(0)
 {
-    _M = 10;
     _taula = new node_hash*[_M];
     for (nat i = 0; i < _M; ++i) {
         _taula[i] = NULL;
@@ -164,10 +163,8 @@ call_registry::call_registry() throw(error) :_quants(0)
 }
 
 /* Constructor per còpia, operador d'assignació i destructor. */
-call_registry::call_registry(const call_registry& R) throw(error)
+call_registry::call_registry(const call_registry& R) throw(error) : _M(R._M), _quants(R._quants)
 {
-    _M = R._M;
-    _quants = R._quants;
     _taula = new node_hash*[_M];
     for (nat i = 0; i < _M; ++i) {
         _taula[i] = copy_nodes(R._taula[i]);
@@ -232,9 +229,9 @@ void call_registry::registra_trucada(nat num) throw(error)
             n->_seg = p;
         }
         _quants++;
-    } 
-    if (factor_de_carrega() > 0.8)
-        redispersio();
+        if (factor_de_carrega() > 0.8)
+            redispersio();
+    }
 }
 
 /* Assigna el nom indicat al número donat.
@@ -270,7 +267,9 @@ void call_registry::assigna_nom(nat num, const string& name) throw(error)
             n->_seg = p;
         }
         _quants++;
-    } 
+        if (factor_de_carrega() > 0.8)
+            redispersio(); 
+    }
 }
 
 /* Elimina l'entrada corresponent al telèfon el número de la qual es dóna.
@@ -404,7 +403,9 @@ void call_registry::dump(vector<phone>& V) const throw(error)
         throw error(ErrNomRepetit);
     }
 }
-void call_registry::prin() const {
+
+/* void call_registry::prin() const 
+{
     print();
 }
 
@@ -419,4 +420,4 @@ void call_registry::print() const {
     cout << endl;
   }
   cout << "-----------\n";
-}
+} */
