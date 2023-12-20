@@ -1,4 +1,4 @@
-OPCIONS = -Wall -Wextra -Wno-sign-compare -std=c++11 -ansi -g
+OPCIONS = -Wall -Wextra -Wno-sign-compare -std=c++14 -g -Wno-deprecated
 
 program.exe: driver_easydial.o phone.o easy_dial.o call_registry.o dialog.o
 	g++ -o program.exe driver_easydial.o phone.o call_registry.o easy_dial.o dialog.o -lesin

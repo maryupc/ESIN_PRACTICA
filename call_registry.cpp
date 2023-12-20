@@ -23,41 +23,21 @@ float call_registry::factor_de_carrega()
     return _quants/(float)_M;
 }
 
-void call_registry::insert(node_hash *q)
-{
-    if (q == NULL)
-        return;
-    node_hash *n = new node_hash(q->_k);
-    int i = h(n->_k.numero()) % _M;
-    node_hash *p = _taula[i];
-    node_hash *pant = NULL;
-    while (p != NULL and p->_k.numero() <= n->_k.numero()) {
-        pant = p;
-        p = p->_seg;
-    }
-    if (pant == NULL) {
-        n->_seg = _taula[i];
-        _taula[i] = n;
-    } else {
-        pant->_seg = n;
-        n->_seg = p;
-    }
-    delete q;
-}
-
 // Redisperció de la taula
 void call_registry::redispersio()
 {
     nat nM = 2 * _M + 1;
     node_hash **ntaula = new node_hash*[nM];
-    for (nat i = 0; i < nM; ++i) ntaula[i] = NULL;
+    for (nat i = 0; i < nM; ++i) ntaula[i] = nullptr;
     swap(_taula,ntaula);
     swap(_M,nM);
     for (nat i = 0; i < nM; ++i) {
         node_hash *m = ntaula[i];
-        while (m != NULL) {
+        while (m != nullptr) {
             node_hash *seg = m->_seg;
-            insert(m);
+            int i = h(m->_k.numero()) % _M;
+            m->_seg = _taula[i];
+            _taula[i] = m;
             m = seg;
         }
     }
@@ -67,7 +47,7 @@ void call_registry::redispersio()
 // Eliminació de tots els nodes continguts a la taula
 void call_registry::delete_nodes(node_hash *p)
 {
-    if (p == NULL)
+    if (p == nullptr)
         return;
     delete_nodes(p->_seg);
     delete p;
@@ -135,7 +115,7 @@ void call_registry::merge(vector<phone>& v, int p, int q, int r,bool &repetidos)
 typename call_registry::node_hash* call_registry::copy_nodes(node_hash *p)
 {
     node_hash *n;
-    if (p == NULL) n = NULL;
+    if (p == nullptr) n = nullptr;
     else {
         n = new node_hash();
         try {
@@ -158,7 +138,7 @@ call_registry::call_registry() throw(error) : _M(100), _quants(0)
 {
     _taula = new node_hash*[_M];
     for (nat i = 0; i < _M; ++i) {
-        _taula[i] = NULL;
+        _taula[i] = nullptr;
     }
 }
 
@@ -207,27 +187,18 @@ void call_registry::registra_trucada(nat num) throw(error)
     int i = h(num) % _M;
     bool found = false;
     node_hash *p = _taula[i];
-    node_hash *pant = NULL;
-    while (p != NULL and not found and p->_k.numero() <= num) {
+    while (p != nullptr and not found) {
         if(p->_k.numero() == num){
             found = true;
             p->_k++;
         }
         else {
-            pant = p;
             p = p->_seg;
         }
     }
     if (not found) {
         phone ph(num,"",1);
-        node_hash *n = new node_hash(ph);
-        if (pant == NULL) {
-            n->_seg = _taula[i];
-            _taula[i] = n;
-        } else {
-            pant->_seg = n;
-            n->_seg = p;
-        }
+        _taula [i] = new node_hash (ph , _taula [i]);
         _quants++;
         if (factor_de_carrega() > 0.8)
             redispersio();
@@ -244,28 +215,19 @@ void call_registry::assigna_nom(nat num, const string& name) throw(error)
     int i = h(num) % _M;
     bool found = false;
     node_hash *p = _taula[i];
-    node_hash *pant = NULL;
-    while (p != NULL and not found and p->_k.numero() <= num) {
+    while (p != nullptr and not found) {
         if(p->_k.numero() == num){
             found = true;
             phone aux(num,name,p->_k.frequencia());
             p->_k = aux;
         }
         else {
-            pant = p;
             p = p->_seg;
         }
     }
     if(not found){
-        phone aux(num,name,0);
-        node_hash *n = new node_hash(aux);
-        if (pant == NULL) {
-            n->_seg = _taula[i];
-            _taula[i] = n;
-        } else {
-            pant->_seg = n;
-            n->_seg = p;
-        }
+        phone ph(num,name,0);
+         _taula [i] = new node_hash (ph , _taula [i]);
         _quants++;
         if (factor_de_carrega() > 0.8)
             redispersio(); 
@@ -279,8 +241,8 @@ void call_registry::elimina(nat num) throw(error)
     int i = h(num) % _M;
     bool found = false;
     node_hash *p = _taula[i];
-    node_hash *pant = NULL;
-    while (p != NULL and not found and p->_k.numero() <= num) {
+    node_hash *pant = nullptr;
+    while (p != nullptr and not found) {
         if(p->_k.numero() == num){
             found = true;
         }
@@ -292,7 +254,7 @@ void call_registry::elimina(nat num) throw(error)
     if(not found){
         throw error(ErrNumeroInexistent);
     }else{
-        if(pant == NULL){
+        if(pant == nullptr){
             _taula[i] = p->_seg;
         }else{
             pant->_seg = p->_seg;
@@ -309,14 +271,13 @@ bool call_registry::conte(nat num) const throw()
     int i = h(num) % _M;
     bool found = false;
     node_hash *p = _taula[i];
-    while (p != NULL and not found and p->_k.numero() <= num) {
+    while (p != nullptr and not found) {
         if(p->_k.numero() == num){
             found = true;
         }
         else {
             p = p->_seg;
         }
-        
     }
     return found;
 }
@@ -331,7 +292,7 @@ string call_registry::nom(nat num) const throw(error)
     bool found = false;
     node_hash *p = _taula[i];
     string name = "";
-    while (p != NULL and not found and p->_k.numero() <= num) {
+    while (p != nullptr and not found) {
         if(p->_k.numero() == num){
             found = true;
             name = p->_k.nom();
@@ -356,7 +317,7 @@ nat call_registry::num_trucades(nat num) const throw(error)
     bool found = false;
     node_hash *p = _taula[i];
     nat trucades_n = 0;
-    while (p != NULL and not found and p->_k.numero() <= num) {
+    while (p != nullptr and not found) {
         if(p->_k.numero() == num){
             found = true;
             trucades_n = p->_k.frequencia();
@@ -391,7 +352,7 @@ void call_registry::dump(vector<phone>& V) const throw(error)
 {
     for(nat i = 0; i < _M; ++i){
         node_hash *p(_taula[i]);
-        while(p != NULL) {
+        while(p != nullptr) {
             if(p->_k.nom() != "")
                 V.push_back(p->_k);
             p = p->_seg;
@@ -403,21 +364,3 @@ void call_registry::dump(vector<phone>& V) const throw(error)
         throw error(ErrNomRepetit);
     }
 }
-
-/* void call_registry::prin() const 
-{
-    print();
-}
-
-void call_registry::print() const {
-  for (nat i=0; i < _M; ++i) {
-    cout << i << ": ";
-    node_hash *p = _taula[i];
-    while (p != NULL) {
-      cout << p->_k.numero() << " ";
-      p = p->_seg;
-    }
-    cout << endl;
-  }
-  cout << "-----------\n";
-} */

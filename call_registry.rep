@@ -2,7 +2,7 @@ struct node_hash
 {
        phone _k; // Clau
        node_hash *_seg;
-       node_hash(const phone &k = phone(), node_hash *seg = NULL) throw();
+       node_hash(const phone &k = phone(), node_hash *seg = nullptr) throw();
 };
 node_hash **_taula; // Taula amb punters a les llistes de phones
 nat _M;             // Mida de la taula
@@ -22,11 +22,6 @@ void redispersio();
 // Pre: Cert
 // Post: Redimensiona la taula de dispersió amb una mida el doble que
 // l’anterior més un (_M passa a ser 2*_M+1)
-
-void insert(node_hash *p);
-// Pre : Cert
-// Post : Inserta a la taula de dispersió un node q = p de forma ordenada segons _k.numero().
-// i elimina en node p. 
 
 static void delete_nodes(node_hash *p);
 // Pre : Cert
