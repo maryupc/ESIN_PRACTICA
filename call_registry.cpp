@@ -53,65 +53,6 @@ void call_registry::delete_nodes(node_hash *p)
     delete p;
 }
 
-void call_registry::merge_sort(vector<phone>&v,int p,int r,bool &repetidos) const
-{
-    if(p<r){
-        int q = (p+r)/2;
-        merge_sort(v,p,q,repetidos);
-        merge_sort(v,q+1,r,repetidos);
-        if(not repetidos) merge(v,p,q,r,repetidos);
-    }
-}
-
-void call_registry::merge(vector<phone>& v, int p, int q, int r,bool &repetidos) const
-{
-    int size1 = q-p+1;
-    int size2 = r-q;
-    vector<phone> L(size1);
-    vector<phone> R(size2);
-
-    for(int i = 0; i < size1; i++){
-        L[i] = v[p+i];
-    }
-    for(int j = 0; j < size2; j++){
-        R[j]=v[q+j+1];
-    }
-
-    int i=0,j=0;
-    int k;
-
-        for(k = p; k <= r && i < size1 && j < size2; k++){
-            if(L[i].nom() < R[j].nom()){
-                v[k] = L[i];
-                i++;
-            }else if(L[i].nom() > R[j].nom()){
-                v[k] = R[j];
-                j++;
-            }else {
-                repetidos = true;
-            }
-        }
-        while(i < size1 and not repetidos){
-            if(k >= 1 && v[k-1].nom() == L[i].nom()){
-                repetidos = true;
-            }else{
-                v[k] = L[i];
-                k++;
-                i++;
-            } 
-        }
-        while(j < size2 and not repetidos){
-            if(k>=1 && v[k-1].nom() == R[j].nom()){
-                repetidos = true;
-            }else{
-                v[k] = R[j];
-                k++;
-                j++;
-            }
-
-        }
-}
-
 typename call_registry::node_hash* call_registry::copy_nodes(node_hash *p)
 {
     node_hash *n;
@@ -353,14 +294,19 @@ void call_registry::dump(vector<phone>& V) const throw(error)
     for(nat i = 0; i < _M; ++i){
         node_hash *p(_taula[i]);
         while(p != nullptr) {
-            if(p->_k.nom() != "")
-                V.push_back(p->_k);
+            if(p->_k.nom() != ""){
+                if(V.size()==0)
+                    V.push_back(p->_k);
+                else{
+                    for(int i = 0; i < V.size(); i++){
+                        if(p->_k.nom()==V[i].nom()){
+                            throw error(ErrNomRepetit);
+                        } 
+                    }
+                    V.push_back(p->_k);
+                }
+            }
             p = p->_seg;
         }
-    }
-    bool repetidos = false;
-    merge_sort(V,0,V.size()-1,repetidos);
-    if(repetidos){
-        throw error(ErrNomRepetit);
     }
 }

@@ -30,8 +30,3 @@ static void delete_nodes(node_hash *p);
 static node_hash* copy_nodes(node_hash *p);
 // Pre : Cert
 // Post : Retorna un node copia del node p y tots els seus seguents.
-
-void merge_sort(vector<phone> &v, int p, int r,bool &repetidos) const;
-void merge(vector<phone> &v, int p, int r, int q, bool &repetidos) const;
-
-/* void print() const; */
