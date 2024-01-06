@@ -3,14 +3,15 @@ struct node_trie {
     node_trie* _seg;
     node_trie* _prf;
     phone _p;
-    node_trie(const char &c, phone p, node_trie *seg = nullptr, node_trie *prf = nullptr);
+    node_trie(const char &c = '#', const phone &p = phone(), node_trie *seg = nullptr, node_trie *prf = nullptr);
 };
 
 node_trie* _arrel;
+node_trie* _actual;
 phone _fav;
-phone _actual;
 string _prefix;
 bool _definit;
+
 int _M;
 
 node_trie* insert(const phone &p, node_trie *n, nat i);
@@ -20,6 +21,5 @@ node_trie* insert(const phone &p, node_trie *n, nat i);
 node_trie* consulta(const string &s, node_trie *n, nat i);
 
 void delete_nodes(node_trie *n);
-
 void merge_sort(vector<phone> &v, int p, int r);
 void merge(vector<phone> &v, int p, int r, int q);

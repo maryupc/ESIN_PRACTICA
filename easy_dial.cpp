@@ -1,6 +1,6 @@
 #include "easy_dial.hpp"
 
-easy_dial::node_trie::node_trie(const char &c, phone p, node_trie* seg , node_trie* prf) :
+easy_dial::node_trie::node_trie(const char &c, const phone &p, node_trie* seg , node_trie* prf) :
   _c(c),_p(p),_seg(seg), _prf(prf) {
 }
 
@@ -64,7 +64,7 @@ typename easy_dial::node_trie* easy_dial::consulta(const string &s, node_trie *n
 {
   node_trie *res = nullptr;
   if (n != nullptr) {
-    if (i == s.length()-1) {
+    if (i >= s.length()-1 and (n->_c==s[s.length()-1] or n->_c=='#') and n->_p.nom() != _actual->_p.nom()) {
       res = n;
     }
     else if (n->_c == s[i]) {
@@ -107,12 +107,16 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
   {
     vector<phone> arr;
     R.dump(arr);
-    merge_sort(arr,0,arr.size()-1);
-    for (nat i = 0; i < arr.size(); ++i) {
-      if(i == 0) _fav = arr[i];
-      else _arrel = insert(arr[i],_arrel,0);
+    nat size = arr.size();
+    merge_sort(arr,0,size-1);
+    _M = size;
+    _actual = nullptr;
+    for (nat i = 0; i < size; ++i) {
+      if(i == 0) {
+        _fav = arr[size-1-i];
+      }
+      else _arrel = insert(arr[size-1-i],_arrel,0);
     }
-
   }
 
   /* Tres grans. Constructor per còpia, operador d'assignació i destructor. */
@@ -129,6 +133,7 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
   easy_dial::~easy_dial() throw()
   {
     delete_nodes(_arrel);
+    delete _actual;
     _definit = false;
   }
 
@@ -142,6 +147,8 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
     _definit = true;
     string nom = "";
     if(_M != 0){
+      char c ='#';
+      _actual = new node_trie(c,_fav);
       nom = _fav.nom();
     }
     return nom;
@@ -156,20 +163,20 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
   llavors es produeix un error i el prefix en curs queda indefinit. 
   Naturalment, es produeix un error si el prefix en curs inicial p 
   fos indefinit. */
-  string  easy_dial::seguent(char c) throw(error)
+  string easy_dial::seguent(char c) throw(error)
   {
     string nom = "";
     if(_definit == false) throw error(ErrPrefixIndef);
-    if(_actual.nom()==""){
+    if(_actual == nullptr){
       _definit = false;
       throw error(ErrNoExisteixTelefon);
     }
     _prefix += c;
     node_trie *p = consulta(_prefix, _arrel, 0);
-    if(p!=nullptr){
+    if(p != nullptr){
       nom = p->_p.nom();
-      _actual = p->_p;
     }
+    _actual = p;
     return nom;
   }
 
@@ -184,15 +191,21 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
     string nom;
     if(_definit == false) throw error(ErrPrefixIndef);
     else if(_prefix == ""){
-      _definit == false;
+      _definit = false;
       throw error(ErrNoHiHaAnterior);
     }else{
-      _prefix[_prefix.size()-1]='\0';
-      node_trie *p = consulta(_prefix,_arrel, 0);
-      if(p!=nullptr) {
-        nom = p->_p.nom();
-        _actual = p->_p;
+      _prefix.pop_back();
+      if(_prefix==""){
+        nom = _fav.nom();
+        _actual->_p = _fav;
+      }else{
+        node_trie *p = consulta(_prefix,_arrel, 0);
+        if(p!=nullptr) {
+          nom = p->_p.nom();
+        }
+        _actual = p;
       }
+
     }
     return nom;
   }
@@ -203,10 +216,13 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
   nat easy_dial::num_telf() const throw(error)
   {
     if(_definit == false) throw error(ErrPrefixIndef);
-    if(_actual.numero()==0) throw error(ErrNoExisteixTelefon);
-    return _actual.numero();
+    if(_actual==nullptr){
+       bool* ptr = const_cast<bool*>(&_definit);
+      *ptr = false;
+      throw error(ErrNoExisteixTelefon);
+    } 
+    return _actual->_p.numero();
   }
-
   /* Retorna en el vector result tots els noms dels contactes de 
   telèfon que comencen amb el prefix pref, en ordre lexicogràfic creixent. */
   void easy_dial::comencen(const string& pref, vector<string>& result) const throw(error)
