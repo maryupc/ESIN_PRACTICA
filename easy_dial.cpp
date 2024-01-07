@@ -40,10 +40,10 @@ void easy_dial::merge(vector<phone>& v, int p, int q, int r)
   int k;
 
   for(k = p; k <= r && i < size1 && j < size2; k++){
-    if(L[i].frequencia() < R[j].frequencia()){
+    if(L[i] < R[j]){
         v[k] = L[i];
         i++;
-    }else if(L[i].frequencia() > R[j].frequencia()){
+    }else if(L[i] > R[j]){
         v[k] = R[j];
         j++;
     }
@@ -64,7 +64,7 @@ typename easy_dial::node_trie* easy_dial::consulta(const string &s, node_trie *n
 {
   node_trie *res = nullptr;
   if (n != nullptr) {
-    if (i >= s.length()-1 and (n->_c==s[s.length()-1] or n->_c=='#') and n->_p.nom() != _actual->_p.nom()) {
+    if (i == s.length()-1 and n->_c==s[s.length()-1]) {
       res = n;
     }
     else if (n->_c == s[i]) {
@@ -110,7 +110,6 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
     nat size = arr.size();
     merge_sort(arr,0,size-1);
     _M = size;
-    _actual = nullptr;
     for (nat i = 0; i < size; ++i) {
       if(i == 0) {
         _fav = arr[size-1-i];
@@ -118,6 +117,7 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
       else _arrel = insert(arr[size-1-i],_arrel,0);
     }
   }
+
 
   /* Tres grans. Constructor per còpia, operador d'assignació i destructor. */
   easy_dial::easy_dial(const easy_dial& D) throw(error)
@@ -133,7 +133,7 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
   easy_dial::~easy_dial() throw()
   {
     delete_nodes(_arrel);
-    delete _actual;
+    _actual = phone();
     _definit = false;
   }
 
@@ -148,8 +148,8 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
     string nom = "";
     if(_M != 0){
       char c ='#';
-      _actual = new node_trie(c,_fav);
       nom = _fav.nom();
+      _actual = _fav;
     }
     return nom;
   }
@@ -167,16 +167,20 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
   {
     string nom = "";
     if(_definit == false) throw error(ErrPrefixIndef);
-    if(_actual == nullptr){
+    if(_actual.nom().empty()){
       _definit = false;
       throw error(ErrNoExisteixTelefon);
     }
-    _prefix += c;
+   
+    if(c == '\0')_prefix+='#';
+    else  _prefix += c;
     node_trie *p = consulta(_prefix, _arrel, 0);
     if(p != nullptr){
       nom = p->_p.nom();
-    }
-    _actual = p;
+      _actual = p->_p;
+    }else
+      _actual = phone();
+    
     return nom;
   }
 
@@ -190,20 +194,21 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
   {
     string nom;
     if(_definit == false) throw error(ErrPrefixIndef);
-    else if(_prefix == ""){
+    else if(_prefix.empty()){
       _definit = false;
       throw error(ErrNoHiHaAnterior);
     }else{
       _prefix.pop_back();
-      if(_prefix==""){
+      if(_prefix.empty()){
         nom = _fav.nom();
-        _actual->_p = _fav;
+        _actual = _fav;
       }else{
         node_trie *p = consulta(_prefix,_arrel, 0);
         if(p!=nullptr) {
           nom = p->_p.nom();
-        }
-        _actual = p;
+          _actual = p->_p;
+        } else
+          _actual = phone();
       }
 
     }
@@ -216,12 +221,12 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
   nat easy_dial::num_telf() const throw(error)
   {
     if(_definit == false) throw error(ErrPrefixIndef);
-    if(_actual==nullptr){
+    if( _actual.nom().empty()){
        bool* ptr = const_cast<bool*>(&_definit);
       *ptr = false;
       throw error(ErrNoExisteixTelefon);
     } 
-    return _actual->_p.numero();
+    return _actual.numero();
   }
   /* Retorna en el vector result tots els noms dels contactes de 
   telèfon que comencen amb el prefix pref, en ordre lexicogràfic creixent. */
@@ -241,5 +246,19 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
   la suma de totes les freqüències. */
   double easy_dial::longitud_mitjana() const throw()
   {
-    
+    double frqt = 0;
+    frqt+=_fav.frequencia();
+    double sum = 0;
+    recorrer_trie(_arrel,1,frqt,sum);
+    double total = sum/frqt;
+    return total;
+  }
+
+  void easy_dial::recorrer_trie(node_trie *n,nat i,double &frqt,double &sum)const{
+    if(n!=nullptr){
+      frqt += n->_p.frequencia();
+      sum = n->_p.frequencia()*i + sum;
+      recorrer_trie(n->_prf,i+1,frqt,sum);
+      recorrer_trie(n->_seg,i,frqt,sum);
+    }
   }
