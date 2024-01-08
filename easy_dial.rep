@@ -22,7 +22,3 @@ void rcomencen(vector<string>& result, node_trie *n) const throw(error);
 void recorrer_trie(node_trie *n,nat i,double &frqt,double &sum)const;
 void delete_nodes(node_trie *n);
 static node_trie* copy_nodes(node_trie *n);
-template< typename T>
-void merge_sort(vector<T> &v, int p, int r) const;
-template< typename T>
-void merge(vector<T> &v, int p, int r, int q) const;

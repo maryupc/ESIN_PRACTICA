@@ -14,7 +14,7 @@ void easy_dial::delete_nodes(node_trie *n){
 }
 
 template <typename T>
-void easy_dial::merge_sort(vector<T>&v,int p,int r) const 
+void merge_sort(vector<T>&v,int p,int r) 
 {
   if(p<r){
     int q = (p+r)/2;
@@ -25,7 +25,7 @@ void easy_dial::merge_sort(vector<T>&v,int p,int r) const
 }
 
 template< typename T>
-void easy_dial::merge(vector<T>& v, int p, int q, int r) const
+void merge(vector<T>& v, int p, int q, int r)
 {
   int size1 = q-p+1;
   int size2 = r-q;
