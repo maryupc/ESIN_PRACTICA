@@ -1,7 +1,7 @@
 #include "easy_dial.hpp"
 
 easy_dial::node_trie::node_trie(const char &c, const phone &p, node_trie* seg , node_trie* prf) :
-  _c(c),_p(p),_seg(seg), _prf(prf) {
+  _c(c),_seg(seg), _prf(prf),_p(p) {
 }
 
 
@@ -13,7 +13,8 @@ void easy_dial::delete_nodes(node_trie *n){
   }
 }
 
-void easy_dial::merge_sort(vector<phone>&v,int p,int r) 
+template <typename T>
+void easy_dial::merge_sort(vector<T>&v,int p,int r) const 
 {
   if(p<r){
     int q = (p+r)/2;
@@ -23,12 +24,13 @@ void easy_dial::merge_sort(vector<phone>&v,int p,int r)
   }
 }
 
-void easy_dial::merge(vector<phone>& v, int p, int q, int r) 
+template< typename T>
+void easy_dial::merge(vector<T>& v, int p, int q, int r) const
 {
   int size1 = q-p+1;
   int size2 = r-q;
-  vector<phone> L(size1);
-  vector<phone> R(size2);
+  vector<T> L(size1);
+  vector<T> R(size2);
    for(int i = 0; i < size1; i++){
     L[i] = v[p+i];
   }
@@ -108,26 +110,54 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
     vector<phone> arr;
     R.dump(arr);
     nat size = arr.size();
-    merge_sort(arr,0,size-1);
-    _M = size;
-    for (nat i = 0; i < size; ++i) {
-      if(i == 0) {
-        _fav = arr[size-1-i];
+    if(size == 1){
+      _fav = arr[0];
+    }else{
+      merge_sort(arr,0,size-1);
+      for (nat i = 0; i < size; ++i) {
+        if(i == 0) {
+          _fav = arr[size-1-i];
+        }else _arrel = insert(arr[size-1-i],_arrel,0);
       }
-      else _arrel = insert(arr[size-1-i],_arrel,0);
     }
   }
 
+  typename easy_dial::node_trie* easy_dial::copy_nodes(node_trie *n){
+    node_trie *t;
+    if(n == nullptr) t = nullptr;
+    else{
+      t = new node_trie();
+      try{
+        t->_c = n->_c;
+        t->_p = n->_p;
+        t->_prf = copy_nodes(n->_prf);
+        t->_seg = copy_nodes(n->_seg);
+      }catch(...){
+        delete t;
+        throw;
+      }
+    }
+    return t;
+  }
 
   /* Tres grans. Constructor per còpia, operador d'assignació i destructor. */
-  easy_dial::easy_dial(const easy_dial& D) throw(error)
+  easy_dial::easy_dial(const easy_dial& D) throw(error) : _fav(D._fav),_actual(D._actual),_prefix(D._prefix),_definit(D._definit)
   {
-
+    _arrel = copy_nodes(D._arrel);
   }
 
   typename easy_dial::easy_dial& easy_dial::operator=(const easy_dial& D) throw(error)
   {
-    
+    if(this != &D){
+      delete_nodes(_arrel);
+       _fav = D._fav;
+       _actual = D._actual;
+       _prefix = D._prefix;
+       _definit = D._definit;
+       _arrel = copy_nodes(D._arrel);
+      
+    }
+    return(*this);
   }
 
   easy_dial::~easy_dial() throw()
@@ -144,10 +174,9 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
   string easy_dial::inici() throw()
   {
     _prefix = "";
-    _definit = true;
     string nom = "";
-    if(_M != 0){
-      char c ='#';
+    _definit = true;
+    if(!_fav.nom().empty()){
       nom = _fav.nom();
       _actual = _fav;
     }
@@ -169,7 +198,7 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
     if(_definit == false) throw error(ErrPrefixIndef);
     if(_actual.nom().empty()){
       _definit = false;
-      throw error(ErrNoExisteixTelefon);
+      throw error(ErrPrefixIndef);
     }
    
     if(c == '\0')_prefix+='#';
@@ -222,18 +251,57 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
   {
     if(_definit == false) throw error(ErrPrefixIndef);
     if( _actual.nom().empty()){
-       bool* ptr = const_cast<bool*>(&_definit);
-      *ptr = false;
       throw error(ErrNoExisteixTelefon);
     } 
     return _actual.numero();
   }
-  /* Retorna en el vector result tots els noms dels contactes de 
-  telèfon que comencen amb el prefix pref, en ordre lexicogràfic creixent. */
-  void easy_dial::comencen(const string& pref, vector<string>& result) const throw(error)
-  {
+
+void easy_dial::rcomencen(vector<string>& result, node_trie *n) const throw(error)
+{
+  if (n != nullptr) {
+    result.push_back(n->_p.nom());
+    rcomencen(result,n->_prf);
+    rcomencen(result,n->_seg);
     
   }
+}
+
+void easy_dial::comencen(const string& pref, vector<string>& result, node_trie *n) const throw(error)
+{
+  bool found = false;
+  int i = 0;
+  while (n != nullptr and !found) {
+    if (pref[i] == n->_c) {
+      if (n->_p.nom().size() >= pref.size() and pref == n->_p.nom().substr(0,pref.size())) {
+        result.push_back(n->_p.nom());
+      }
+      n = n->_prf;
+      ++i;
+    } 
+    else n = n->_seg;
+    if (i == pref.size()) found = true;
+  }
+  rcomencen(result, n);
+}
+
+  
+/* Retorna en el vector result tots els noms dels contactes de 
+telèfon que comencen amb el prefix pref, en ordre lexicogràfic creixent. */
+void easy_dial::comencen(const string& pref, vector<string>& result) const throw(error)
+{
+  if (!_fav.nom().empty() and _fav.nom().size() >= pref.size() 
+        and pref == _fav.nom().substr(0,pref.size())) {
+        result.push_back(_fav.nom());
+      }
+  if (pref.empty()) rcomencen(result,_arrel);
+  else comencen(pref,result,_arrel);
+  merge_sort(result,0,result.size()-1);
+}
+
+//--------------------------------------------------------------------------------------------//
+
+
+/* ##IMPLEMENTACIÓ DELS MÉTODES PÚBLICS## */
 
   /* Retorna el número mitjà de pulsacions necessàries para obtenir un
   telèfon. Formalment, si X és el conjunt de noms emmagatzemats en
@@ -250,8 +318,8 @@ typename easy_dial::node_trie* easy_dial::insert(const phone &p, node_trie *n, n
     frqt+=_fav.frequencia();
     double sum = 0;
     recorrer_trie(_arrel,1,frqt,sum);
-    double total = sum/frqt;
-    return total;
+    if (frqt != 0) frqt= sum /frqt;
+    return frqt;
   }
 
   void easy_dial::recorrer_trie(node_trie *n,nat i,double &frqt,double &sum)const{

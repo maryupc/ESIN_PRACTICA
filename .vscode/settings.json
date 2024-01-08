@@ -8,6 +8,8 @@
         "string_view": "cpp",
         "initializer_list": "cpp",
         "utility": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "vector": "cpp",
+        "*.tcc": "cpp"
     }
 }
