@@ -4,6 +4,8 @@ struct node_trie {
     node_trie* _prf;
     phone _p;
     node_trie(const char &c = '#', const phone &p = phone(), node_trie *seg = nullptr, node_trie *prf = nullptr);
+    // Pre: Cert
+    // Post: constructor node_trie amb els parametres introduits.
 };
 
 node_trie* _arrel;
@@ -13,12 +15,30 @@ string _prefix;
 bool _definit;
 
 node_trie* insert(const phone &p, node_trie *n, nat i);
-// Pre : p es un phone no null.
-// Post : 
+// Pre: p es un phone no existent dins de la trie de easy_dial.
+// Post: insereix p dins de la trie per ordre d'inserció amb clau _k = p.nom()[i] i phone = p i retorna el node.
+// Cost: O(n) on n es el nº de nodes a la trie (nº de telefons) 
 
-node_trie* consulta(const string &s, node_trie *n, nat i);
-void comencen(const string& pref, vector<string>& result, node_trie *n) const throw(error);
-void rcomencen(vector<string>& result, node_trie *n) const throw(error);
+node_trie* consulta(const string &s, node_trie *n, nat i) const;
+// Pre: cert
+// Post: si hi es, retorna el punter a node de la trie que coincideix amb la cadena s fins s.size.
+// si no hi es, retorna nullptr.
+// Cost: O(n) on n es el nº de nodes a la trie (nº de telefons) 
+
+void comencen(const string& pref, vector<string>& result, node_trie *n) const;
+// Pre: cert
+// Post: Guarda a result els noms dels phones on el seu nom comença per pref.
+// Cost: O(n) on n es el nº de nodes a la trie (nº de telefons) 
+
+void rcomencen(vector<string>& result, node_trie *n) const;
+// Pre: 
+
+
 void recorrer_trie(node_trie *n,nat i,double &frqt,double &sum)const;
+
+
 void delete_nodes(node_trie *n);
+// Pre: Cert
+// Post: si n no es null, esborra tots els nodes de n.
+
 static node_trie* copy_nodes(node_trie *n);
