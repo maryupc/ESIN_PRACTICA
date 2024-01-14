@@ -1,3 +1,34 @@
+//Explicació de la estructura de la trie y perque
+/* Aquesta trie es una trie primer_fill-seguent_germà on els nodes estan inserits per
+ordre segons el nº de trucades de forma decreixent. El primer nom (el que te més trucade
+es una variable a part i no entra a la trie per fer-ho de forma mes eficient. Els altres
+nodes s'aniràn inserin per ordre tenint com a clau un caracter. Aquest caracter es sabrá
+seguint el metode tradicional d'inserció d'una trie però pararà d'inserir els caracters del
+nom inmediatament quan no trobi algun dels caracters de la caracters. En cas de que arribi
+al final de la cadena s'afegirà com a clau un #.
+
+Exemple:
+
+MARIA : 10
+JOAN : 30
+MIQUEL : 25
+MARTA : 7
+MAR : 2 
+
+Primer aniría JOAN, per tant no s'introduiriía a la trie. Segon aniría MIQUEL, com que no 
+existeix cap M la seva clau serà M. Tercer sería MARIA, com que existeix M, crea un fill a 
+M i afegeix com a caracter A. Quart sería MARTA, com que existeix M, baixaría al primer fill 
+i com existeix A doncs afegiría un fill a A amb clau R. Finalment, com MAR ja es una cadena 
+existent a la trie, es crearía un node a baix de tot de la cadena amb un #.
+
+Hem escollit aquest metode perque la forma de consultar els elements es identica que la del 
+easy dial, a més a més, es bastant mes eficient en aquest cas en comparació a una trie tradicional 
+que es basa en la longitud de la paraula y el numero de nodes. (En aquest cas nomes el seu temps 
+de consulta es en base al numero de noms). Fer-ho d'aquest manera també te els seus incombenients
+com a la hora de fer el comença: com que cap nom está ordenat lexicograficament a la trie hem hagut
+de crear un metode templatitzat amb un algorisme d'ordenacio eficient (merge_sort) per tal de contrarestar
+aquesta desavantatge.
+*/
 struct node_trie {
     char _c;
     node_trie* _seg;
@@ -31,14 +62,22 @@ void comencen(const string& pref, vector<string>& result, node_trie *n) const;
 // Cost: O(n) on n es el nº de nodes a la trie (nº de telefons) 
 
 void rcomencen(vector<string>& result, node_trie *n) const;
-// Pre: 
-
+// Pre: Cert.
+//Post: Guarda a resultat els noms de tots els a partir del node n.
+//Cost: O(n) on n es le nº de nodes seguents del node n.
 
 void recorrer_trie(node_trie *n,nat i,double &frqt,double &sum)const;
-
+//Pre: Cert
+//Post: sum conté la acumulació que es la suma que conte: (freqüència*número de pulsacions) fetá per a cada telefon de easy_dial.
+//      frqt conté la suma de totes les freqüències dels phones en easy_dial.
+//Cost: O(n) on n es el nº de nodes al node_trie "n".
 
 void delete_nodes(node_trie *n);
 // Pre: Cert
 // Post: si n no es null, esborra tots els nodes de n.
+// Cost: O(n) on n es el nº de nodes de la trie (nº de telefons).
 
 static node_trie* copy_nodes(node_trie *n);
+// Pre: Cert.
+// Post: Crea una copia de n i la retorna.
+// Cost: O(n) on n es el nº de nodes al node_trie "n".

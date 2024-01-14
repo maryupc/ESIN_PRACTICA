@@ -1,3 +1,7 @@
+/*Per la part del Call Registry ens va semblar basntant evident utilitzar una hashing table, ja que 
+els costos de les consultes son constants i com el que s'ha de consultar son numeros doncs ho
+simplificaba molt tot.*/
+
 struct node_hash
 {
        phone _k; // Clau
@@ -13,20 +17,25 @@ static long const MULT = 31415926;
 static long h(nat k);
 // Pre: Cert
 // Post: Retorna un valor de dispersió entre 0 i LONG_MAX a partir de k
+// Cost: O(1)
 
 float factor_de_carrega();
 // Pre: Cert
 // Post: Retorna el factor de càrrega de la taula de dispersió
+// Cost: O(1)
 
 void redispersio();
 // Pre: Cert
 // Post: Redimensiona la taula de dispersió amb una mida el doble que
 // l’anterior més un (_M passa a ser 2*_M+1)
+// Cost: O(n) on es la nova mida de la taula. 
 
 static void delete_nodes(node_hash *p);
 // Pre : Cert
 // Post : elimina tots els nodes seguents de p amb p inclós.
+// Cost: O(n) on n es el nº de nodes seguents de p => n sol ser 1, per tant cost = O(1)
 
 static node_hash* copy_nodes(node_hash *p);
 // Pre : Cert
-// Post : Retorna un node copia del node p y tots els seus seguents.
+// Post : Retorna un node copia del node p y tots els seus seguent
+// Cost: O(n) on n es el nº de nodes seguents de p => n sol ser 1, per tant cost = O(1)

@@ -76,7 +76,7 @@ typename phone::phone phone::operator++(int) throw()
 bool phone::operator==(const phone& T) const throw()
 {
     if(_compt == T._compt)
-        return _name < T._name;
+        return _name == T._name;
     return _compt == T._compt;
 }
 
@@ -101,10 +101,14 @@ bool phone::operator>(const phone& T) const throw()
 
 bool phone::operator<=(const phone& T) const throw()
 {
+    if (_compt == T._compt)
+        return _name <= T._name;
     return _compt <= T._compt;
 }
 
 bool phone::operator>=(const phone& T) const throw()
 {
+    if (_compt == T._compt)
+        return _name >= T._name;
     return _compt >= T._compt;
 }

@@ -1,7 +1,17 @@
+//Elements de un phone, que son el seu número de telefon
+//nom de la persona que té el telefon y per ultim 
+//la freqüència de les trucades de aquest telefon.
 nat _num;
 string _name;
 nat _compt;
 
+//Pre: T es un phone correcte.
+//Post: Copia els elements de T al phone implicit.
+//Cost: O(1)
 void copyItems(const phone& T) throw();
 
+//Pre: Cert
+//Post: Retorna true si el nom no conté cap caracter "prohibit"
+//que es "|, < , \0".Sino retorna false. 
+//Cost: O(n) on n es la mida de name.
 static bool itsCorrectName(const string &name) throw();

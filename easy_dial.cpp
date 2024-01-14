@@ -4,7 +4,8 @@
 //---------------------------------------------------------------------------------------------//
 
 // Pre: Cert
-// Post: fusiona de forma ordenada els dos intervals de [p,q] i de (q,r] del vector v. 
+// Post: fusiona de forma ordenada els dos intervals de [p,q] i de (q,r] del vector v.
+// Cost; O(n) on n es el valor r. 
 template< typename T>
 void merge(vector<T>& v, int p, int q, int r)
 {
