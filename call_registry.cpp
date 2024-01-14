@@ -3,7 +3,7 @@
 /* ##IMPLEMENTACIÓ DELS MÈTODES PRIVATS## */
 //---------------------------------------------------------------------------------------------//
 
-// Constructor de nodo tipo hash
+
 call_registry::node_hash::node_hash(const phone &k, node_hash *seg) throw() : _k(k), _seg(seg)
 {
 }
@@ -47,10 +47,10 @@ void call_registry::redispersio()
 // Eliminació de tots els nodes continguts a la taula
 void call_registry::delete_nodes(node_hash *p)
 {
-    if (p == nullptr)
-        return;
-    delete_nodes(p->_seg);
-    delete p;
+    if (p != nullptr) {
+        delete_nodes(p->_seg);
+        delete p;
+    }
 }
 
 typename call_registry::node_hash* call_registry::copy_nodes(node_hash *p)
@@ -75,6 +75,9 @@ typename call_registry::node_hash* call_registry::copy_nodes(node_hash *p)
 
 /* ##IMPLEMENTACIÓ DELS MÉTODES PÚBLICS## */
 
+  // Pre: Cert
+  // Post: Construeix un call_registry buit.
+  // Cost: O(k) on k = 100
 call_registry::call_registry() throw(error) : _M(100), _quants(0)
 {
     _taula = new node_hash*[_M];
@@ -83,7 +86,9 @@ call_registry::call_registry() throw(error) : _M(100), _quants(0)
     }
 }
 
-/* Constructor per còpia, operador d'assignació i destructor. */
+  // Pre: Cert
+  // Post: Crea un call registry amb els mateixos parametres que R.
+  // Const: O(n) on n es la mida de R
 call_registry::call_registry(const call_registry& R) throw(error) : _M(R._M), _quants(R._quants)
 {
     _taula = new node_hash*[_M];
@@ -93,6 +98,9 @@ call_registry::call_registry(const call_registry& R) throw(error) : _M(R._M), _q
     
 }
 
+  // Pre: Cert.
+  // Post: Retorna una copia de R al call registry implicit.
+  // Cost: O(n) on n es la mida del call registry mes gran.
 typename call_registry::call_registry& call_registry::operator=(const call_registry& R) throw(error)
 {
     if (this != &R) {
@@ -111,18 +119,23 @@ typename call_registry::call_registry& call_registry::operator=(const call_regis
     return (*this);
 }
 
+  // Pre: Cert.
+  // Post: Elimina el call regsitry implicit
+  // Cost: O(n) on en es la mida del call registry
 call_registry::~call_registry() throw()
 {
     for (nat i = 0; i < _M; ++i) {
         delete_nodes(_taula[i]);
     }
-    delete _taula;
+    delete[] _taula;
 }
 
-/* Registra que s'ha realitzat una trucada al número donat, 
-incrementant en 1 el comptador de trucades associat. Si el número no 
-estava prèviament en el call_registry afegeix una nova entrada amb 
-el número de telèfon donat, l'string buit com a nom i el comptador a 1. */
+  // Pre: Cert.
+  // Post: Registra que s'ha realitzat una trucada al número donat, 
+  // incrementant en 1 el comptador de trucades associat. Si el número no 
+  // estava prèviament en el call_registry afegeix una nova entrada amb 
+  // el número de telèfon donat, l'string buit com a nom i el comptador a 1. 
+  // Cost: O(1)
 void call_registry::registra_trucada(nat num) throw(error)
 {
     int i = h(num) % _M;
@@ -146,11 +159,13 @@ void call_registry::registra_trucada(nat num) throw(error)
     }
 }
 
-/* Assigna el nom indicat al número donat.
-Si el número no estava prèviament en el call_registry, s'afegeix
-una nova entrada amb el número i nom donats, i el comptador 
-de trucades a 0. 
-Si el número existia prèviament, se li assigna el nom donat. */
+  // Pre: Cert.
+  // Post: Assigna el nom indicat al número donat.
+  // Si el número no estava prèviament en el call_registry, s'afegeix
+  // una nova entrada amb el número i nom donats, i el comptador 
+  // de trucades a 0. 
+  // Si el número existia prèviament, se li assigna el nom donat.
+  // Cost: O(1)
 void call_registry::assigna_nom(nat num, const string& name) throw(error)
 {
     int i = h(num) % _M;
@@ -175,8 +190,10 @@ void call_registry::assigna_nom(nat num, const string& name) throw(error)
     }
 }
 
-/* Elimina l'entrada corresponent al telèfon el número de la qual es dóna.
-Es produeix un error si el número no estava present. */
+  // Pre: Cert.
+  // Post: Elimina l'entrada corresponent al telèfon el número de la qual es dóna.
+  // Es produeix un error si el número no estava present.
+  // Cost: O(1)
 void call_registry::elimina(nat num) throw(error)
 {    
     int i = h(num) % _M;
@@ -205,8 +222,10 @@ void call_registry::elimina(nat num) throw(error)
     }
 }
 
-/* Retorna cert si i només si el call_registry conté un 
-telèfon amb el número donat. */
+  // Pre: Cert.
+  // Post: Retorna cert si i només si el call_registry conté un 
+  // telèfon amb el número donat.
+  // Cost: (1)
 bool call_registry::conte(nat num) const throw()
 {
     int i = h(num) % _M;
@@ -223,10 +242,12 @@ bool call_registry::conte(nat num) const throw()
     return found;
 }
 
-/* Retorna el nom associat al número de telèfon que s'indica.
-Aquest nom pot ser l'string buit si el número de telèfon no
-té un nom associat. Es produeix un error si el número no està en
-el call_registry. */
+  // Pre: Cert
+  // Post: Retorna el nom associat al número de telèfon que s'indica.
+  // Aquest nom pot ser l'string buit si el número de telèfon no
+  // té un nom associat. Es produeix un error si el número no està en
+  // el call_registry.
+  // Cost: O(1)
 string call_registry::nom(nat num) const throw(error)
 {
     int i = h(num) % _M;
@@ -248,10 +269,12 @@ string call_registry::nom(nat num) const throw(error)
     return name;
 }
 
-/* Retorna el comptador de trucades associat al número de telèfon 
-indicat. Aquest número pot ser 0 si no s'ha efectuat cap trucada a
-aquest número. Es produeix un error si el número no està en el 
-call_registry. */
+  // Pre: Cert
+  // Post: Retorna el comptador de trucades associat al número de telèfon 
+  // indicat. Aquest número pot ser 0 si no s'ha efectuat cap trucada a
+  // aquest número. Es produeix un error si el número no està en el 
+  // call_registry.
+  // Cost: O(1)
 nat call_registry::num_trucades(nat num) const throw(error)
 {
     int i = h(num) % _M;
@@ -273,22 +296,29 @@ nat call_registry::num_trucades(nat num) const throw(error)
     return trucades_n;
 }
 
-/* Retorna cert si i només si el call_registry està buit. */
-bool call_registry::es_buit() const throw()
+  // Pre: Cert
+  // Post: Retorna true si el call registry implicit es buit.
+  // En cas contrari retorna false.
+  // Cost: O(1)
+  bool call_registry::es_buit() const throw()
 {
     return _quants == 0;
 }
 
-/* Retorna quants números de telèfon hi ha en el call_registry. */
+  // Pre: Cert.
+  // Post: Retorna quants números de telèfon hi ha en el call_registry.
+  // Cost: O(1)
 nat call_registry::num_entrades() const throw()
 {
     return _quants;
 }
 
-/* Fa un bolcat de totes les entrades que tenen associat un
-nom no nul sobre un vector de phone.
-Comprova que tots els noms dels telèfons siguin diferents; 
-es produeix un error en cas contrari. */
+  // Pre: Cert.
+  // Post: Fa un bolcat de totes les entrades que tenen associat un
+  // nom no nul sobre un vector de phone.
+  // Comprova que tots els noms dels telèfons siguin diferents; 
+  // es produeix un error en cas contrari.
+  // Cost: O(n²) on n es el numero de phones al call registry
 void call_registry::dump(vector<phone>& V) const throw(error)
 {
     for(nat i = 0; i < _M; ++i){

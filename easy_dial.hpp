@@ -76,7 +76,7 @@ public:
   //Pre: Cert
   /*Post: Retorna en el vector result tots els noms dels contactes de 
   telèfon que comencen amb el prefix pref, en ordre lexicogràfic creixent. */
-  //Cost:
+  //Cost: O(n) on n es el nº de nodes a la trie (nº de telefons)
   void comencen(const string& pref, vector<string>& result) const throw(error);
 
   //Pre: Cert
@@ -89,7 +89,7 @@ public:
   per tots els telèfons s del conjunt X, sent Pr(s) la probabilitat de
   telefonar a s. La probabilitat s'obté dividint la freqüència de s per
   la suma de totes les freqüències. */
-  //Cost: 
+  //Cost: O(n) on n es el nº de nodes a la trie (nº de telefons)
   double longitud_mitjana() const throw();
 
   /* Gestió d'errors. */

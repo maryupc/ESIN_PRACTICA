@@ -176,12 +176,17 @@ void easy_dial::recorrer_trie(node_trie *n,nat i,double &frqt,double &sum)const{
 /* ##IMPLEMENTACIÓ DELS MÉTODES PÚBLICS## */
 //--------------------------------------------------------------------------------------------//
 
-/* Tres grans. Constructor per còpia, operador d'assignació i destructor. */
+  // Pre: Cert
+  // Post: Crea un easy dial nou amb els mateixos parametres que D
+  // Cost: O(n) on n es el nº de nodes a la trie (nº de telefons)
 easy_dial::easy_dial(const easy_dial& D) throw(error) : _fav(D._fav),_actual(D._actual),_prefix(D._prefix),_definit(D._definit)
 {
   _arrel = copy_nodes(D._arrel);
 }
 
+  // Pre: Cert
+  // Post: Retorna una copia de D al parametre implicit
+  // Cost: O(n) on n es el nº de nodes a la trie (nº de telefons)
 typename easy_dial::easy_dial& easy_dial::operator=(const easy_dial& D) throw(error)
 {
   if(this != &D){
@@ -195,6 +200,9 @@ typename easy_dial::easy_dial& easy_dial::operator=(const easy_dial& D) throw(er
   return(*this);
 }
 
+ // Pre: Cert
+  // Post: elimina el easy dial implicit
+  // Cost: O(n) on n es el nº de nodes a la trie (nº de telefons)
 easy_dial::~easy_dial() throw()
 {
   delete_nodes(_arrel);
@@ -202,9 +210,11 @@ easy_dial::~easy_dial() throw()
   _definit = false;
 }
 
-/* Construeix un easy_dial a partir de la 
+//Pre: Cert
+/*Post: Construeix un easy_dial a partir de la 
 informació continguda en el call_registry donat. El
 prefix en curs queda indefinit. */
+//Cost: O(n²) on n es la quantitat de numeros a R.
 easy_dial::easy_dial(const call_registry& R) throw(error) : _arrel(nullptr), _definit(false)
 {
   vector<phone> arr;
@@ -222,8 +232,10 @@ easy_dial::easy_dial(const call_registry& R) throw(error) : _arrel(nullptr), _de
   }
 }
 
-/* Inicialitza el prefix en curs a buit. Retorna el nom de F(S, '');
-si F (S, '') no existeix llavors retorna l'string buit. */
+  //Pre: Cert
+  /*Post: Inicialitza el prefix en curs a buit. Retorna el nom de F(S, '');
+  si F (S, '') no existeix llavors retorna l'string buit. */
+  //Cost: O(1)
 string easy_dial::inici() throw()
 {
   _prefix = "";
@@ -236,15 +248,17 @@ string easy_dial::inici() throw()
   return nom;
 }
 
-/* Retorna el nom de F(S, p') on p' és el prefix resultant d'afegir
-el caràcter c al final del prefix en curs p i
-fa que el nou prefix en curs sigui p'.
-Si F(S, p) existeix però F(S, p') no existeix llavors retorna 
-l'string buit. 
-Si no existeix F(S, p) (i per tant tampoc pot existir F(S, p'))
-llavors es produeix un error i el prefix en curs queda indefinit. 
-Naturalment, es produeix un error si el prefix en curs inicial p 
-fos indefinit. */
+ //Pre: Cert
+  /*Post: Retorna el nom de F(S, p') on p' és el prefix resultant d'afegir
+  el caràcter c al final del prefix en curs p i
+  fa que el nou prefix en curs sigui p'.
+  Si F(S, p) existeix però F(S, p') no existeix llavors retorna 
+  l'string buit. 
+  Si no existeix F(S, p) (i per tant tampoc pot existir F(S, p'))
+  llavors es produeix un error i el prefix en curs queda indefinit. 
+  Naturalment, es produeix un error si el prefix en curs inicial p 
+  fos indefinit. */
+  //Cost: O(n) on n es el nº de nodes a la trie (nº de telefons)
 string easy_dial::seguent(char c) throw(error)
 {
   string nom = "";
@@ -266,12 +280,14 @@ string easy_dial::seguent(char c) throw(error)
   return nom;
 }
 
-/* Elimina l'últim caràcter del prefix en curs p = p' · a
-(a és el caràcter eliminat). Retorna el nom F(S, p') 
-i fa que el nou prefix en curs sigui p'. 
-Es produeix un error si p fos buida i si es fa que el prefix en curs
-quedi indefinit. Òbviament, també es produeix un error 
-si p fos indefinit. */
+  //Pre: Cert
+  /*Post: Elimina l'últim caràcter del prefix en curs p = p' · a
+  (a és el caràcter eliminat). Retorna el nom F(S, p') 
+  i fa que el nou prefix en curs sigui p'. 
+  Es produeix un error si p fos buida i si es fa que el prefix en curs
+  quedi indefinit. Òbviament, també es produeix un error 
+  si p fos indefinit. */
+  //Cost: O(n) on n es el nº de nodes a la trie (nº de telefons)
 string easy_dial::anterior() throw(error)
 {
   string nom;
@@ -296,9 +312,12 @@ string easy_dial::anterior() throw(error)
   }
   return nom;
 }
-/* Retorna el número de telèfon de F(S, p), sent p
-el prefix en curs. Es produeix un error si p és indefinit o si
-no existeix F(S, p). */
+
+  //Pre: Cert
+  /*Post: Retorna el número de telèfon de F(S, p), sent p
+  el prefix en curs. Es produeix un error si p és indefinit o si
+  no existeix F(S, p). */
+  //Cost: O(1)
 nat easy_dial::num_telf() const throw(error)
 {
   if(_definit == false) throw error(ErrPrefixIndef);
@@ -308,8 +327,10 @@ nat easy_dial::num_telf() const throw(error)
   return _actual.numero();
 }
   
-/* Retorna en el vector result tots els noms dels contactes de 
-telèfon que comencen amb el prefix pref, en ordre lexicogràfic creixent. */
+  //Pre: Cert
+  /*Post: Retorna en el vector result tots els noms dels contactes de 
+  telèfon que comencen amb el prefix pref, en ordre lexicogràfic creixent. */
+  //Cost: O(n) on n es el nº de nodes a la trie (nº de telefons)
 void easy_dial::comencen(const string& pref, vector<string>& result) const throw(error)
 {
   if (!_fav.nom().empty() and _fav.nom().size() >= pref.size() 
@@ -320,15 +341,17 @@ void easy_dial::comencen(const string& pref, vector<string>& result) const throw
   merge_sort(result,0,result.size()-1);
 }
 
-/* Retorna el número mitjà de pulsacions necessàries para obtenir un
-telèfon. Formalment, si X és el conjunt de noms emmagatzemats en
-el easy_dial i t(s) és el número de pulsacions mínimes
-necessàries (= número de crides a l'operació seguent) per
-obtenir el telèfon el nom del qual és s. La funció retorna la suma
-    Pr(s) · t(s)
-per tots els telèfons s del conjunt X, sent Pr(s) la probabilitat de
-telefonar a s. La probabilitat s'obté dividint la freqüència de s per
-la suma de totes les freqüències. */
+//Pre: Cert
+/*Post: Retorna el número mitjà de pulsacions necessàries para obtenir un
+  telèfon. Formalment, si X és el conjunt de noms emmagatzemats en
+  el easy_dial i t(s) és el número de pulsacions mínimes
+  necessàries (= número de crides a l'operació seguent) per
+  obtenir el telèfon el nom del qual és s. La funció retorna la suma
+      Pr(s) · t(s)
+  per tots els telèfons s del conjunt X, sent Pr(s) la probabilitat de
+  telefonar a s. La probabilitat s'obté dividint la freqüència de s per
+  la suma de totes les freqüències. */
+//Cost: 
 double easy_dial::longitud_mitjana() const throw()
 {
   double frqt = 0;
